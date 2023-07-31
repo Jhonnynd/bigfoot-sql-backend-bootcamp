@@ -8,7 +8,10 @@ class SightingsRouter {
   routes() {
     // we will insert routes into here later on
     router.get("/", this.controller.getAll.bind(this.controller));
+    router.post("/new", this.controller.create.bind(this.controller));
     router.get("/:sightingId", this.controller.getOne.bind(this.controller));
+    router.delete("/:sightingId", this.controller.delete.bind(this.controller));
+    router.put("/:sightingId", this.controller.edit.bind(this.controller));
     return router;
   }
 }
