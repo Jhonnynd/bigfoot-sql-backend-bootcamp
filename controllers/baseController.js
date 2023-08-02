@@ -14,14 +14,24 @@ class BaseController {
     }
   }
   async create(req, res) {
+    const { date, location, notes, selectedCategoryIds } = req.body;
     try {
-      const sighting = req.body;
-      console.log("sighting", sighting);
+      // Create new sighting
       const newSighting = await this.model.create({
-        ...sighting,
+        date: new Date(date),
+        location: location,
+        notes: notes,
       });
-
-      res.json({ sighting: newSighting, message: "success" });
+      // Retrieve selected categories
+      const selectedCategories = await this.categoryModel.findAll({
+        where: {
+          id: selectedCategoryIds,
+        },
+      });
+      // Associated new sighting with selected categories
+      await newSighting.setCategories(selectedCategories);
+      // Respond with new sighting
+      return res.json(newSighting);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err });
     }

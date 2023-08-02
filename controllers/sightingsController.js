@@ -1,8 +1,9 @@
 const BaseController = require("./baseController");
 
 class SightingsController extends BaseController {
-  constructor(model, comment) {
+  constructor(model, category, comment) {
     super(model);
+    this.categoryModel = category;
     this.commentModel = comment;
   }
 
@@ -10,7 +11,9 @@ class SightingsController extends BaseController {
   async getOne(req, res) {
     const { sightingId } = req.params;
     try {
-      const sighting = await this.model.findByPk(sightingId);
+      const sighting = await this.model.findByPk(sightingId, {
+        include: this.categoryModel,
+      });
       return res.json(sighting);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err });
@@ -61,30 +64,30 @@ class SightingsController extends BaseController {
 
   //get all comments for a sighting
   async getComments(req, res) {
+    const { sightingId } = req.params;
     try {
-      const { sightingId } = req.params;
-      const allComments = await this.commentModel.findAll({
+      const comments = await this.commentModel.findAll({
         where: {
           sightingId: sightingId,
         },
       });
-      return res.status(200).json({ allComments, message: "success" });
+      return res.json(comments);
     } catch (err) {
-      return res.status(400).json({ error: true, msg: err.message });
+      return res.status(400).json({ error: true, msg: err });
     }
   }
 
   async createComment(req, res) {
+    const { sightingId } = req.params;
+    const { content } = req.body;
     try {
-      const { sightingId } = req.params;
-      const { content } = req.body;
-      const comment = await this.commentModel.create({
+      const newComment = await this.commentModel.create({
         content: content,
         sightingId: sightingId,
       });
-      return res.status(200).json(comment);
+      return res.json(newComment);
     } catch (err) {
-      return res.status(400).json({ error: true, msg: err.message });
+      return res.status(400).json({ error: true, msg: err });
     }
   }
 }
